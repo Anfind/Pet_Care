@@ -59,8 +59,8 @@ Application settings can be configured in `src/main/resources/application.proper
 
 ## Default Admin Account
 
-- Email: admin@petcare.com
-- Password: admin123
+- Email: admin
+- Password: admin
 
 ## GitHub
 

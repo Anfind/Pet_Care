@@ -40,6 +40,7 @@ com\petcare\dao\impl\ServiceDAOImpl.class
 com\petcare\service\FAQService.class
 com\petcare\model\Booking.class
 com\petcare\dao\OrderItemDAO.class
+com\petcare\util\CreateAdminUtil.class
 com\petcare\cli\AppSession.class
 com\petcare\dao\impl\ReviewDAOImpl.class
 com\petcare\model\Review.class

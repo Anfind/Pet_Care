@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
@@ -63,30 +64,74 @@ public class Main {
     private static void seedAdminUser() {
         Connection conn = null;
         PreparedStatement stmt = null;
+        ResultSet rs = null;
 
         try {
             conn = DBConnection.getConnection();
 
-            // Xóa tài khoản admin cũ nếu tồn tại
-            String deleteSql = "DELETE FROM users WHERE email IN ('admin@petcare.com', 'admin')";
-            stmt = conn.prepareStatement(deleteSql);
-            stmt.executeUpdate();
+            // Kiểm tra xem tài khoản admin đã tồn tại chưa
+            String checkSql = "SELECT id, email, password FROM users WHERE email IN ('admin@petcare.com', 'admin')";
+            stmt = conn.prepareStatement(checkSql);
+            rs = stmt.executeQuery();
+
+            // Tạo map để theo dõi tài khoản đã tồn tại
+            boolean adminExists = false;
+            boolean adminPetcareExists = false;
+
+            while (rs.next()) {
+                String email = rs.getString("email");
+                if ("admin".equals(email)) {
+                    adminExists = true;
+                } else if ("admin@petcare.com".equals(email)) {
+                    adminPetcareExists = true;
+                }
+            }
+
+            DBConnection.close(rs, stmt, null);
+
+            // Tạo hoặc cập nhật tài khoản admin
+            if (adminExists) {
+                // Cập nhật mật khẩu nếu tài khoản đã tồn tại
+                String updateSql = "UPDATE users SET password = 'admin' WHERE email = 'admin'";
+                stmt = conn.prepareStatement(updateSql);
+                stmt.executeUpdate();
+                System.out.println("Plain admin user password updated.");
+            } else {
+                // Tạo tài khoản admin mới
+                String insertSql = "INSERT INTO users (name, email, password, role) VALUES ('Admin', 'admin', 'admin', 'ADMIN')";
+                stmt = conn.prepareStatement(insertSql);
+                stmt.executeUpdate();
+                System.out.println("Plain admin user created successfully.");
+            }
+
             DBConnection.close(stmt, null);
 
-            // Tạo tài khoản admin mới với mật khẩu không băm (plain text)
-            String insertSql = "INSERT INTO users (name, email, password, role) VALUES ('Admin', 'admin', 'admin', 'ADMIN')";
-            stmt = conn.prepareStatement(insertSql);
-            int rows = stmt.executeUpdate();
+            // Tạo hoặc cập nhật tài khoản admin@petcare.com
+            String hashedPassword = PasswordUtil.createPasswordHash("admin123");
 
-            if (rows > 0) {
-                System.out.println("Admin user created successfully.");
-                System.out.println("Email: admin");
-                System.out.println("Password: admin");
+            if (adminPetcareExists) {
+                // Cập nhật mật khẩu nếu tài khoản đã tồn tại
+                String updateSql = "UPDATE users SET password = ? WHERE email = 'admin@petcare.com'";
+                stmt = conn.prepareStatement(updateSql);
+                stmt.setString(1, hashedPassword);
+                stmt.executeUpdate();
+                System.out.println("Hashed admin user password updated.");
+            } else {
+                // Tạo tài khoản admin@petcare.com mới
+                String insertSql = "INSERT INTO users (name, email, password, role) VALUES ('Administrator', 'admin@petcare.com', ?, 'ADMIN')";
+                stmt = conn.prepareStatement(insertSql);
+                stmt.setString(1, hashedPassword);
+                stmt.executeUpdate();
+                System.out.println("Hashed admin user created successfully.");
             }
+
+            System.out.println("Email: admin, Password: admin");
+            System.out.println("Email: admin@petcare.com, Password: admin123");
+
         } catch (SQLException e) {
-            System.err.println("Error creating admin user: " + e.getMessage());
+            System.err.println("Error updating admin users: " + e.getMessage());
         } finally {
-            DBConnection.close(stmt, conn);
+            DBConnection.close(rs, stmt, conn);
         }
     }
 
