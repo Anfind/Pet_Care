@@ -1,0 +1,89 @@
+# Running the Pet Care Java Project on Windows
+
+To share your Pet Care Java project with a friend who will run it on Windows, follow these steps:
+
+## What You Need to Send
+
+1. **Complete Project Package**:
+   - Zip the entire project directory (`PetCareJava` folder)
+   - Include all source files, resources, and the pom.xml file
+
+2. **Compiled JAR** (optional but convenient):
+   - Build the executable JAR using `mvn clean package`
+   - Send the resulting JAR file: pet-care-java-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+## What Your Friend Needs to Install
+
+1. **Java Development Kit (JDK) 11 or higher**:
+   - Download from [Oracle JDK](https://www.oracle.com/java/technologies/downloads/#java11) or [OpenJDK](https://adoptopenjdk.net/)
+   - Install and set JAVA_HOME environment variable
+
+2. **Maven 3.6 or higher** (only needed if not using the pre-built JAR):
+   - Download from [Maven's official site](https://maven.apache.org/download.cgi)
+   - Install and add to PATH
+
+3. **MySQL Server** (optional, if not using H2 in-memory database):
+   - Download from [MySQL's official site](https://dev.mysql.com/downloads/installer/)
+   - Install and create a database named `petcare`
+   - Note the username and password
+
+## Configuration Steps for Your Friend
+
+1. **Extract the Project** to a folder on their system
+
+2. **Database Configuration** (if using MySQL):
+   - Open application.properties
+   - Change `mysql.username` and `mysql.password` to match their MySQL installation
+   - Ensure `db.type=mysql` is set (or `db.type=h2` for in-memory database)
+
+## Running the Application
+
+### Method 1: Using the Pre-compiled JAR (Easiest)
+
+1. Open Command Prompt
+2. Navigate to the folder containing the JAR file
+3. Run the application:
+   ```
+   java -jar pet-care-java-1.0-SNAPSHOT-jar-with-dependencies.jar
+   ```
+
+### Method 2: Building from Source
+
+1. Open Command Prompt
+2. Navigate to the project root directory (where pom.xml is located)
+3. Build the project:
+   ```
+   mvn clean package
+   ```
+4. Run the application:
+   ```
+   java -jar target/pet-care-java-1.0-SNAPSHOT-jar-with-dependencies.jar
+   ```
+   
+### Method 3: Using Maven Exec
+
+1. Navigate to the project root directory
+2. Run the application:
+   ```
+   mvn exec:java -Dexec.mainClass="com.petcare.Main"
+   ```
+
+## Troubleshooting Tips for Your Friend
+
+1. **Java Not Found**: Ensure Java is installed and added to PATH
+   ```
+   java -version
+   ```
+
+2. **Database Connection Issues**:
+   - Verify MySQL is running
+   - Check application.properties has correct credentials
+   - Try using H2 in-memory database by setting `db.type=h2`
+
+3. **Display Issues**: 
+   - If box characters don't display correctly in Windows Command Prompt, try Windows Terminal or PowerShell instead
+
+4. **Login Info**:
+   - Default admin account: admin@petcare.com / admin123
+
+With these instructions, your friend should be able to successfully run the Pet Care Java application on their Windows system!

@@ -1,0 +1,109 @@
+# Running the Pet Care Java Project on Mac
+
+To run your Pet Care Java project on a Mac system, follow these instructions:
+
+## Prerequisites for Mac
+
+1. **Java Development Kit (JDK) 11 or higher**:
+   - Install via Homebrew: `brew install openjdk@11`
+   - Or download from [Oracle JDK](https://www.oracle.com/java/technologies/downloads/#java11) or [Adoptium](https://adoptium.net/)
+   - After installing with Homebrew, you may need to add it to your PATH:
+     ```
+     echo 'export PATH="/usr/local/opt/openjdk@11/bin:$PATH"' >> ~/.zshrc
+     source ~/.zshrc
+     ```
+
+2. **Maven 3.6 or higher**:
+   - Install via Homebrew: `brew install maven`
+   - Verify installation: `mvn -version`
+
+3. **MySQL Server** (optional, if not using H2 in-memory database):
+   - Install via Homebrew: `brew install mysql`
+   - Start MySQL service: `brew services start mysql`
+   - Set up root password: `mysql_secure_installation`
+   - Create a database: 
+     ```
+     mysql -u root -p
+     CREATE DATABASE petcare;
+     exit
+     ```
+
+## Configuration on Mac
+
+1. **Extract the Project** to a folder on your Mac
+
+2. **Database Configuration** (if using MySQL):
+   - Open application.properties in a text editor
+   - Set database configuration:
+     ```
+     db.type=mysql
+     mysql.url=jdbc:mysql://localhost:3306/petcare?serverTimezone=UTC
+     mysql.username=root
+     mysql.password=your_password
+     ```
+   - Or use H2 in-memory database by setting `db.type=h2`
+
+## Running the Application on Mac
+
+### Method 1: Using the Pre-compiled JAR
+
+1. Open Terminal
+2. Navigate to the folder containing the JAR file:
+   ```
+   cd /path/to/project/target
+   ```
+3. Run the application:
+   ```
+   java -jar pet-care-java-1.0-SNAPSHOT-jar-with-dependencies.jar
+   ```
+
+### Method 2: Building from Source
+
+1. Open Terminal
+2. Navigate to the project root directory:
+   ```
+   cd /path/to/PetCareJava
+   ```
+3. Build the project:
+   ```
+   mvn clean package
+   ```
+4. Run the application:
+   ```
+   java -jar target/pet-care-java-1.0-SNAPSHOT-jar-with-dependencies.jar
+   ```
+
+### Method 3: Using Maven Exec
+
+1. Navigate to the project root directory:
+   ```
+   cd /path/to/PetCareJava
+   ```
+2. Run the application:
+   ```
+   mvn exec:java -Dexec.mainClass="com.petcare.Main"
+   ```
+
+## Mac-Specific Troubleshooting
+
+1. **Terminal Font Issues**:
+   - Ensure your Terminal uses a font that supports Unicode box drawing characters
+   - Try using iTerm2 instead of the default Terminal app for better character support
+
+2. **Permission Denied Issues**:
+   - If you get "Permission denied" when running the JAR:
+     ```
+     chmod +x target/pet-care-java-1.0-SNAPSHOT-jar-with-dependencies.jar
+     ```
+
+3. **Java Version Conflicts**:
+   - If you have multiple Java versions installed, specify the version:
+     ```
+     /usr/local/opt/openjdk@11/bin/java -jar target/pet-care-java-1.0-SNAPSHOT-jar-with-dependencies.jar
+     ```
+
+4. **MySQL Connection Issues**:
+   - Verify MySQL is running: `brew services list`
+   - Restart MySQL if needed: `brew services restart mysql`
+
+The application should now run smoothly on your Mac system with all the beautiful UI elements displaying correctly in the Terminal!
