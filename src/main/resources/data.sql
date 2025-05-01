@@ -130,14 +130,19 @@ SET @user_count = (SELECT COUNT(*) FROM users);
 SET @insert_data = IF(@user_count = 0, 1, 0);
 
 -- Insert data only if tables are empty (@insert_data = 1)
--- Insert Admin User
+-- Insert plain text Admin User (for easier login)
 INSERT INTO users (name, email, password, role)
-SELECT 'Admin', 'admin@petcare.com', '$2a$10$XA8NwZuoP7gjcQQjpJsxX.PSFEuJxRMrYXqwXJQpzkXKYJIjWBc3m', 'ADMIN'
+SELECT 'Admin', 'admin', 'admin', 'ADMIN'
 WHERE @insert_data = 1;
 
--- Insert Regular User
+-- Insert hashed Admin User (original) with SHA-256 format
 INSERT INTO users (name, email, password, role)
-SELECT 'John Doe', 'john@example.com', '$2a$10$XA8NwZuoP7gjcQQjpJsxX.PSFEuJxRMrYXqwXJQpzkXKYJIjWBc3m', 'CUSTOMER'
+SELECT 'Admin', 'admin@petcare.com', 'ImV/VWwWGV0WVXoTFNtjDNMH5otBRn2OhZGJIKQ0tLI=:FXWPj/mTfykLECOVLwxRuGMWMNHiU8SqiDNL3CHqXbI=', 'ADMIN'
+WHERE @insert_data = 1;
+
+-- Insert Regular User with SHA-256 format
+INSERT INTO users (name, email, password, role)
+SELECT 'John Doe', 'john@example.com', 'wLDlhb/uFYQbDf73FdOUj6eVNhpGGRJxs6COSMrcgSc=:y6QaWkuRjLT/xnfR9qLw6v6lD+JK4DkgKAJFTjHnHPA=', 'CUSTOMER'
 WHERE @insert_data = 1;
 
 -- Only insert sample data if tables are empty

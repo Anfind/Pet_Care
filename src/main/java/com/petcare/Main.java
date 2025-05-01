@@ -14,78 +14,96 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Optional;
 
 /**
  * Main entry point for the Pet Care CLI application.
  */
 public class Main {
-    
+
     public static void main(String[] args) {
         // Initialize database schema
         initializeDatabase();
-        
+
         // Welcome message
         ConsoleUtil.displayTitle("PET CARE SERVICE & E-COMMERCE SYSTEM");
         System.out.println("A complete solution for pet care services and product management.");
         ConsoleUtil.pressEnterToContinue("");
-        
+
         // Start main menu
         MainMenu mainMenu = new MainMenu();
         mainMenu.display();
-        
+
         // Exit message
         System.out.println("\nThank you for using Pet Care Service & E-Commerce System. Goodbye!");
     }
-    
+
     /**
      * Initialize database schema and seed initial data.
      */
     private static void initializeDatabase() {
         System.out.println("Initializing database...");
-        
+
         // Initialize schema
         DBConnection.initializeSchema();
-        
+
         // Seed admin user if not exists
         seedAdminUser();
-        
+
         // Seed sample data
         seedSampleData();
     }
-    
+
     /**
      * Create an admin user if one does not already exist.
      */
     private static void seedAdminUser() {
-        UserService userService = new UserServiceImpl();
-        
-        // Check if admin user exists
-        if (userService.login("admin@petcare.com", "admin123").isEmpty()) {
-            // Create admin user
-            User adminUser = userService.register("Administrator", "admin@petcare.com", "admin123", "ADMIN");
-            
-            if (adminUser != null) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+
+        try {
+            conn = DBConnection.getConnection();
+
+            // Xóa tài khoản admin cũ nếu tồn tại
+            String deleteSql = "DELETE FROM users WHERE email IN ('admin@petcare.com', 'admin')";
+            stmt = conn.prepareStatement(deleteSql);
+            stmt.executeUpdate();
+            DBConnection.close(stmt, null);
+
+            // Tạo tài khoản admin mới với mật khẩu không băm (plain text)
+            String insertSql = "INSERT INTO users (name, email, password, role) VALUES ('Admin', 'admin', 'admin', 'ADMIN')";
+            stmt = conn.prepareStatement(insertSql);
+            int rows = stmt.executeUpdate();
+
+            if (rows > 0) {
                 System.out.println("Admin user created successfully.");
+                System.out.println("Email: admin");
+                System.out.println("Password: admin");
             }
+        } catch (SQLException e) {
+            System.err.println("Error creating admin user: " + e.getMessage());
+        } finally {
+            DBConnection.close(stmt, conn);
         }
     }
-    
+
     /**
      * Seed sample data for demonstration purposes.
      */
     private static void seedSampleData() {
         Connection conn = null;
         Statement stmt = null;
-        
+
         try {
             conn = DBConnection.getConnection();
             stmt = conn.createStatement();
-            
+
             // Load SQL from data.sql file
             String sql = loadSqlFromFile("data.sql");
-            
+
             // Split and execute each SQL statement
             if (sql != null && !sql.trim().isEmpty()) {
                 for (String statement : sql.split(";")) {
@@ -101,7 +119,7 @@ public class Main {
             DBConnection.close(stmt, conn);
         }
     }
-    
+
     /**
      * Load SQL statements from a file in the resources directory.
      * 
@@ -110,13 +128,13 @@ public class Main {
      */
     private static String loadSqlFromFile(String filename) {
         StringBuilder sql = new StringBuilder();
-        
+
         try (InputStream is = Main.class.getClassLoader().getResourceAsStream(filename)) {
             if (is == null) {
                 System.err.println("Could not find " + filename);
                 return null;
             }
-            
+
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -130,7 +148,7 @@ public class Main {
             System.err.println("Error loading SQL file: " + e.getMessage());
             return null;
         }
-        
+
         return sql.toString();
     }
 }
