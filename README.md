@@ -62,10 +62,21 @@ Application settings can be configured in `src/main/resources/application.proper
 - Email: admin@petcare.com
 - Password: admin123
 
+## GitHub
+
+This project is maintained by [Anfind](https://github.com/Anfind).
+
+### Authentication
+
+To access the repository and contribute to the project:
+1. Clone the repository using your GitHub credentials
+2. Use personal access token or SSH key for authentication
+3. Follow GitHub's recommended authentication practices for secure access
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Author
 
-[Your Name]
+Anfind
